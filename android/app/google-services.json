@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "441848301610",
+    "project_id": "rabt-e-masjid",
+    "storage_bucket": "rabt-e-masjid.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441848301610:android:111b116032988739c19b53",
+        "android_client_info": {
+          "package_name": "com.rabt_e_masjid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBL3tVivJpnAooTuKT6LTEeuHjiDFg7n2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

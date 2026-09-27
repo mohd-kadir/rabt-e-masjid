@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import 'admin_dashboard_screen.dart';
-import 'admin_register_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_login_screen.dart';
 
-/// Admin Login screen for mosque administrators. UI only — no Firebase
-/// or any backend authentication is wired up. Submitting the form just
-/// shows a placeholder snackbar; wire up real auth when ready.
-class AdminLoginScreen extends StatefulWidget {
-  const AdminLoginScreen({super.key});
+/// Admin Register screen — UI only. No backend wired up yet.
+class AdminRegisterScreen extends StatefulWidget {
+  const AdminRegisterScreen({super.key});
 
   @override
-  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+  State<AdminRegisterScreen> createState() => _AdminRegisterScreenState();
 }
 
-class _AdminLoginScreenState extends State<AdminLoginScreen> {
+class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _rememberMe = false;
+  bool _obscureConfirmPassword = true;
   bool _isSubmitting = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Full name is required';
+    return null;
   }
 
   String? _validateEmail(String? value) {
@@ -46,160 +51,28 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     return null;
   }
 
-  Future<void> _handleLogin() async {
+  String? _validateConfirmPassword(String? value) {
+    final v = value ?? '';
+    if (v.isEmpty) return 'Please confirm your password';
+    if (v != _passwordController.text) return 'Passwords do not match';
+    return null;
+  }
+
+  Future<void> _handleRegister() async {
     final form = _formKey.currentState;
-
-    if (form == null || !form.validate()) {
-      return;
-    }
-
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    if (form == null) return;
+    if (!form.validate()) return;
 
     setState(() => _isSubmitting = true);
 
-    try {
-      // 1. Firebase Authentication se login
-      final credential =
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    // TODO: Wire up real registration later.
+    await Future.delayed(const Duration(milliseconds: 900));
 
-      final user = credential.user;
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
 
-      if (user == null) {
-        throw Exception('User not found');
-      }
-
-      // 2. Logged-in user ki UID se Firestore admin document fetch
-      final adminDoc = await FirebaseFirestore.instance
-          .collection('admins')
-          .doc(user.uid)
-          .get();
-
-      // 3. Check: admins collection mein UID exist karti hai ya nahi
-      if (!adminDoc.exists) {
-        await FirebaseAuth.instance.signOut();
-
-        if (!mounted) return;
-
-        setState(() => _isSubmitting = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'This account is not authorized as an admin.',
-            ),
-          ),
-        );
-
-        return;
-      }
-
-      // 4. Admin document ka data
-      final data = adminDoc.data();
-
-      final role = data?['role'];
-      final masjidId = data?['masjidId'];
-      final adminName = data?['name'];
-
-      // 5. Role aur masjidId verify karo
-      if (role != 'admin' ||
-          masjidId == null ||
-          masjidId.toString().isEmpty) {
-        await FirebaseAuth.instance.signOut();
-
-        if (!mounted) return;
-
-        setState(() => _isSubmitting = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Admin account setup is incomplete.',
-            ),
-          ),
-        );
-
-        return;
-      }
-
-      if (!mounted) return;
-
-      setState(() => _isSubmitting = false);
-
-      // 6. Correct masjid ki information dashboard ko bhejo
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => AdminDashboardScreen(
-            masjidId: masjidId.toString(),
-            adminName: adminName?.toString() ?? 'Admin',
-          ),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-
-      setState(() => _isSubmitting = false);
-
-      String message;
-
-      switch (e.code) {
-        case 'invalid-credential':
-        case 'wrong-password':
-        case 'user-not-found':
-          message = 'Invalid email or password.';
-          break;
-
-        case 'invalid-email':
-          message = 'Please enter a valid email address.';
-          break;
-
-        case 'user-disabled':
-          message = 'This admin account has been disabled.';
-          break;
-
-        case 'too-many-requests':
-          message = 'Too many attempts. Please try again later.';
-          break;
-
-        default:
-          message = 'Login failed. Please try again.';
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } on FirebaseException catch (e) {
-      if (!mounted) return;
-
-      setState(() => _isSubmitting = false);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Database error: ${e.message ?? 'Please try again.'}',
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() => _isSubmitting = false);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Something went wrong. Please try again.',
-          ),
-        ),
-      );
-    }
-  }
-  void _handleForgotPassword() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Forgot Password — coming soon')),
+      const SnackBar(content: Text('Admin registration — coming soon')),
     );
   }
 
@@ -241,7 +114,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'Masjid Administration',
+                        'Create Admin Account',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22,
@@ -251,7 +124,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Manage your mosque from one place',
+                        'Register to manage your mosque',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
@@ -264,7 +137,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // --- Email field ---
+                // --- Full Name ---
+                const _FieldLabel('Full Name'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.name,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: _validateName,
+                  style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                  decoration: _fieldDecoration(
+                    hint: 'Enter your full name',
+                    icon: Icons.person_outline_rounded,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // --- Email ---
                 const _FieldLabel('Email'),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -281,19 +171,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- Password field ---
+                // --- Password ---
                 const _FieldLabel('Password'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.next,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: _validatePassword,
-                  onFieldSubmitted: (_) => _handleLogin(),
                   style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                   decoration: _fieldDecoration(
-                    hint: 'Enter your password',
+                    hint: 'Create a password',
                     icon: Icons.lock_outline_rounded,
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -305,58 +194,37 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 20),
 
-                // --- Remember me / Forgot password ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () => setState(() => _rememberMe = !_rememberMe),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: Checkbox(
-                                value: _rememberMe,
-                                onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                                activeColor: AppColors.primaryGreen,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Remember me',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
+                // --- Confirm Password ---
+                const _FieldLabel('Confirm Password'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  textInputAction: TextInputAction.done,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: _validateConfirmPassword,
+                  onFieldSubmitted: (_) => _handleRegister(),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                  decoration: _fieldDecoration(
+                    hint: 'Re-enter your password',
+                    icon: Icons.lock_outline_rounded,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        size: 20,
+                        color: AppColors.textSecondary,
                       ),
+                      onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                     ),
-                    TextButton(
-                      onPressed: _handleForgotPassword,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primaryGreen,
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                      ),
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 28),
 
-                // --- Login button ---
+                // --- Register button ---
                 ElevatedButton(
-                  onPressed: _isSubmitting ? null : _handleLogin,
+                  onPressed: _isSubmitting ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
                     foregroundColor: Colors.white,
@@ -372,22 +240,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
                   )
                       : const Text(
-                    'Login',
+                    'Register',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
-                // --- Register link ---
+                const SizedBox(height: 20),
+
+                // --- Already have account? Login ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Don't have an account? ",
+                      'Already have an account? ',
                       style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const AdminRegisterScreen()),
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
                         );
                       },
                       style: TextButton.styleFrom(
@@ -395,13 +265,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                       ),
                       child: const Text(
-                        'Register',
+                        'Login',
                         style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
                 const SizedBox(height: 28),
 
                 // --- Security notice ---

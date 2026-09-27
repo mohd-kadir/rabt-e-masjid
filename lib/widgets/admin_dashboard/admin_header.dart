@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../models/masjid_info_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Admin Dashboard header: title, masjid name, profile icon, and
 /// notification icon.
 class AdminHeader extends StatelessWidget {
+  final String masjidId;
+  final String adminName;
   final VoidCallback? onProfileTap;
   final VoidCallback? onNotificationTap;
 
-  const AdminHeader({super.key, this.onProfileTap, this.onNotificationTap});
+  const AdminHeader({
+    super.key,
+    required this.masjidId,
+    required this.adminName,
+    this.onProfileTap,
+    this.onNotificationTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,25 +31,107 @@ class AdminHeader extends StatelessWidget {
             children: [
               Text(
                 'Admin Dashboard',
-                style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: palette.textPrimary),
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary,
+                ),
               ),
               const SizedBox(height: 3),
-              Row(
-                children: [
-                  Icon(Icons.mosque_rounded, size: 13, color: palette.goldMuted),
-                  const SizedBox(width: 5),
-                  Text(
-                    MasjidInfo.name,
-                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: palette.goldMuted),
-                  ),
-                ],
+
+              // Masjid name from Firestore
+              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance
+                    .collection('masjids')
+                    .doc(masjidId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Row(
+                      children: [
+                        Icon(
+                          Icons.mosque_rounded,
+                          size: 13,
+                          color: palette.goldMuted,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Loading...',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: palette.goldMuted,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      !snapshot.data!.exists) {
+                    return Row(
+                      children: [
+                        Icon(
+                          Icons.mosque_rounded,
+                          size: 13,
+                          color: palette.goldMuted,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          masjidId,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: palette.goldMuted,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  final data = snapshot.data!.data();
+                  final masjidName =
+                      data?['name']?.toString() ?? masjidId;
+
+                  return Row(
+                    children: [
+                      Icon(
+                        Icons.mosque_rounded,
+                        size: 13,
+                        color: palette.goldMuted,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        masjidName,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: palette.goldMuted,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
         ),
-        _IconButton(icon: Icons.notifications_none_rounded, onTap: onNotificationTap, palette: palette, showDot: true),
+
+        _IconButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: onNotificationTap,
+          palette: palette,
+          showDot: true,
+        ),
+
         const SizedBox(width: 10),
-        _IconButton(icon: Icons.account_circle_outlined, onTap: onProfileTap, palette: palette),
+
+        _IconButton(
+          icon: Icons.account_circle_outlined,
+          onTap: onProfileTap,
+          palette: palette,
+        ),
       ],
     );
   }
