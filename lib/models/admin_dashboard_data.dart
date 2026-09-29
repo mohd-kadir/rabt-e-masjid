@@ -57,34 +57,5 @@ class AdminStats {
 
   static const int totalUsers = 1284;
   static const int announcementsCount = 8;
-  static const int upcomingEventsCount = 3;
   static const int prayerUpdatesCount = 2;
 }
-
-/// Mock upcoming events shown on the Admin Dashboard.
-const List<MosqueEvent> mockUpcomingEvents = [
-  MosqueEvent(
-    title: 'Community Iftar Fundraiser',
-    dateLabel: '22 August 2026',
-    timeLabel: '6:00 PM',
-    location: 'Main Hall',
-    attendeeCount: 84,
-    icon: Icons.event_rounded,
-  ),
-  MosqueEvent(
-    title: 'Weekend Quran Tafseer Circle',
-    dateLabel: '25 August 2026',
-    timeLabel: '4:45 PM',
-    location: 'Library Room',
-    attendeeCount: 32,
-    icon: Icons.menu_book_rounded,
-  ),
-  MosqueEvent(
-    title: 'Ramadan Planning Committee Meeting',
-    dateLabel: '23 August 2026',
-    timeLabel: '7:30 PM',
-    location: 'Admin Office',
-    attendeeCount: 12,
-    icon: Icons.groups_rounded,
-  ),
-];

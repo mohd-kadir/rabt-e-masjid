@@ -4,7 +4,15 @@ import '../../models/masjid_info_data.dart';
 
 /// Responsive facilities grid (2 columns on phones, 3 on tablets).
 class FacilitiesGrid extends StatelessWidget {
-  const FacilitiesGrid({super.key});
+  final MasjidInfo masjidInfo;
+
+  const FacilitiesGrid({
+
+    super.key,
+
+    required this.masjidInfo,
+
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +23,7 @@ class FacilitiesGrid extends StatelessWidget {
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: MasjidInfo.facilities.length,
+          itemCount: masjidInfo.facilities.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             mainAxisSpacing: 10,
@@ -23,7 +31,7 @@ class FacilitiesGrid extends StatelessWidget {
             childAspectRatio: 2.6,
           ),
           itemBuilder: (context, index) {
-            final facility = MasjidInfo.facilities[index];
+            final facility = masjidInfo.facilities[index];
             return _FacilityTile(facility: facility);
           },
         );

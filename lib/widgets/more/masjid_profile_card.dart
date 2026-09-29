@@ -7,7 +7,7 @@ import '../../models/masjid_info_data.dart';
 class MasjidProfileCard extends StatelessWidget {
   final VoidCallback? onTap;
 
-  const MasjidProfileCard({super.key, this.onTap});
+  const MasjidProfileCard({super.key, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +47,8 @@ class MasjidProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      MasjidInfo.name,
+                     Text(
+                       'Masjid Al-Noor',
                       style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                     const SizedBox(height: 4),
@@ -58,7 +58,7 @@ class MasjidProfileCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            MasjidInfo.locationLabel,
+                            'Sector-5, Darka',
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withOpacity(0.85)),
                           ),

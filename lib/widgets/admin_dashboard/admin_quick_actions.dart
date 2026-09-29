@@ -13,7 +13,6 @@ const List<AdminQuickAction> adminQuickActions = [
   AdminQuickAction(label: 'Add Announcement', icon: Icons.add_circle_rounded, isPrimary: true),
   AdminQuickAction(label: 'Prayer Timings', icon: Icons.access_time_rounded),
   AdminQuickAction(label: 'Manage Announcements', icon: Icons.campaign_outlined),
-  AdminQuickAction(label: 'Manage Events', icon: Icons.event_note_outlined),
   AdminQuickAction(label: 'Masjid Information', icon: Icons.mosque_outlined),
 ];
 

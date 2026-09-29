@@ -118,14 +118,14 @@ class AdminHeader extends StatelessWidget {
           ),
         ),
 
-        _IconButton(
-          icon: Icons.notifications_none_rounded,
-          onTap: onNotificationTap,
-          palette: palette,
-          showDot: true,
-        ),
-
-        const SizedBox(width: 10),
+        // _IconButton(
+        //   icon: Icons.notifications_none_rounded,
+        //   onTap: onNotificationTap,
+        //   palette: palette,
+        //   showDot: true,
+        // ),
+        //
+        // const SizedBox(width: 10),
 
         _IconButton(
           icon: Icons.account_circle_outlined,

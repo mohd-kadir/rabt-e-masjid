@@ -25,6 +25,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkExistingAdminSession();
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -44,6 +53,55 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     if (v.isEmpty) return 'Password is required';
     if (v.length < 6) return 'Password must be at least 6 characters';
     return null;
+  }
+
+  Future<void> _checkExistingAdminSession() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    // User logged in nahi hai
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final adminDoc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.uid)
+          .get();
+
+      // Admin document nahi mila
+      if (!adminDoc.exists) {
+        await FirebaseAuth.instance.signOut();
+        return;
+      }
+
+      final data = adminDoc.data();
+
+      final role = data?['role'];
+      final masjidId = data?['masjidId'];
+      final adminName = data?['name'];
+
+      // Admin authorized nahi hai
+      if (role != 'admin' ||
+          masjidId == null ||
+          masjidId.toString().isEmpty) {
+        await FirebaseAuth.instance.signOut();
+        return;
+      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => AdminDashboardScreen(
+            masjidId: masjidId.toString(),
+            adminName: adminName?.toString() ?? 'Admin',
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Existing admin session check failed: $e');
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -197,10 +255,49 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       );
     }
   }
-  void _handleForgotPassword() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Forgot Password — coming soon')),
-    );
+  Future<void> _handleForgotPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email address first'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Password reset link has been sent to your email.',
+          ),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = 'Unable to send reset email.';
+
+      if (e.code == 'user-not-found') {
+        message = 'No admin account found with this email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'Please enter a valid email address.';
+      } else if (e.code == 'too-many-requests') {
+        message = 'Too many attempts. Please try again later.';
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 
   @override

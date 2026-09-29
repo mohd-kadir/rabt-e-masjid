@@ -43,7 +43,7 @@ dependencies:
   permission_handler: ^11.3.0
 
   # For network requests
-  http: ^1.2.0
+  http: ^1.6.0
 
   # For dependency injection (optional but recommended)
   provider: ^6.1.0

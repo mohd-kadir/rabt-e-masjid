@@ -10,7 +10,6 @@ import '../widgets/admin_dashboard/admin_header.dart';
 import '../widgets/admin_dashboard/admin_stats_grid.dart';
 import '../widgets/admin_dashboard/admin_quick_actions.dart';
 import '../widgets/admin_dashboard/admin_announcement_row.dart';
-import '../widgets/admin_dashboard/admin_event_card.dart';
 import '../widgets/admin_dashboard/admin_prayer_timing_preview.dart';
 import 'masjid_info_screen.dart';
 import 'announcement_detail_screen.dart';
@@ -250,10 +249,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                         );
                       },
-
-                      onNotificationTap: () {
-                        _comingSoon(context, 'Admin Notifications');
-                      },
                     ),
 
                     const SizedBox(height: 20),
@@ -261,7 +256,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     // ==================================================
                     // STATS
                     // ==================================================
-                    const AdminStatsGrid(),
+                    AdminStatsGrid(
+                      masjidId: widget.masjidId,
+                    ),
 
                     const SizedBox(height: 24),
 
@@ -490,7 +487,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     // PRAYER TIMINGS
                     // ==================================================
                     const SectionTitle(
-                      title: 'Prayers Time',
+                      title: 'Prayer Timing',
                       icon: Icons.access_time_outlined,
                     ),
 
@@ -507,55 +504,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         );
                       },
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // ==================================================
-                    // UPCOMING EVENTS
-                    // ==================================================
-                    const SectionTitle(
-                      title: 'Upcoming Events',
-                      icon: Icons.event_rounded,
-                    ),
-
                     const SizedBox(height: 12),
                   ],
                 ),
               ),
-            ),
-
-            // ==================================================
-            // UPCOMING EVENTS
-            // ==================================================
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 190,
-
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-
-                  itemCount: mockUpcomingEvents.length,
-
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-
-                  itemBuilder: (context, index) {
-                    final event = mockUpcomingEvents[index];
-
-                    return AdminEventCard(
-                      event: event,
-
-                      onTap: () {
-                        _comingSoon(context, event.title);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            )
           ],
         ),
       ),

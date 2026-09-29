@@ -12,7 +12,9 @@ import 'bookmarks_screen.dart';
 import 'masjid_info_screen.dart';
 import 'notifications_screen.dart';
 import 'settings_screen.dart';
-// import 'admin_login_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'admin_dashboard_screen.dart';
 
 /// Premium "More" screen: a settings/navigation hub. Masjid profile card
 /// up top, then Islamic Tools / Community / Masjid / App sections, each
@@ -29,6 +31,87 @@ class MoreMenuScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$label — coming soon')),
     );
+  }
+
+  Future<void> _openAdminArea(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    // ------------------------------------------------------------
+    // NOT LOGGED IN
+    // ------------------------------------------------------------
+
+    if (user == null) {
+      _push(context, const AdminLoginScreen());
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // CHECK ADMIN DOCUMENT
+    // ------------------------------------------------------------
+
+    try {
+      final adminDoc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.uid)
+          .get();
+
+      if (!adminDoc.exists) {
+        await FirebaseAuth.instance.signOut();
+
+        if (!context.mounted) return;
+
+        _push(context, const AdminLoginScreen());
+        return;
+      }
+
+      final data = adminDoc.data();
+
+      final role = data?['role'];
+      final masjidId = data?['masjidId'];
+      final adminName = data?['name'];
+
+      // ----------------------------------------------------------
+      // INVALID ADMIN
+      // ----------------------------------------------------------
+
+      if (role != 'admin' ||
+          masjidId == null ||
+          masjidId.toString().isEmpty) {
+        await FirebaseAuth.instance.signOut();
+
+        if (!context.mounted) return;
+
+        _push(context, const AdminLoginScreen());
+        return;
+      }
+
+      // ----------------------------------------------------------
+      // ALREADY LOGGED-IN ADMIN
+      // ----------------------------------------------------------
+
+      if (!context.mounted) return;
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AdminDashboardScreen(
+            masjidId: masjidId.toString(),
+            adminName: adminName?.toString() ?? 'Admin',
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Admin area open error: $e');
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to verify admin session.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -158,8 +241,7 @@ class MoreMenuScreen extends StatelessWidget {
                     title: 'Masjid Admin Login',
                     subtitle: 'For authorized mosque administrators',
                     icon: Icons.admin_panel_settings_outlined,
-                    onTap: () => _push(context, const AdminLoginScreen()
-                  ),
+                    onTap: () => _openAdminArea(context),
                   ),
                 ],
               ),

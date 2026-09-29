@@ -4,7 +4,11 @@ import '../../models/masjid_info_data.dart';
 
 /// Address / Phone / Email information card.
 class MasjidInfoDetails extends StatelessWidget {
-  const MasjidInfoDetails({super.key});
+  final MasjidInfo masjidInfo;
+  const MasjidInfoDetails({
+    super.key,
+    required this.masjidInfo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +27,11 @@ class MasjidInfoDetails extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _InfoRow(icon: Icons.location_on_outlined, label: 'Address', value: MasjidInfo.address, palette: palette),
+          _InfoRow(icon: Icons.location_on_outlined, label: 'Address', value: masjidInfo.address, palette: palette),
           Divider(height: 22, thickness: 1, color: palette.divider),
-          _InfoRow(icon: Icons.call_outlined, label: 'Phone', value: MasjidInfo.phone, palette: palette),
+          _InfoRow(icon: Icons.call_outlined, label: 'Phone', value: masjidInfo.phone, palette: palette),
           Divider(height: 22, thickness: 1, color: palette.divider),
-          _InfoRow(icon: Icons.mail_outline_rounded, label: 'Email', value: MasjidInfo.email, palette: palette),
+          _InfoRow(icon: Icons.mail_outline_rounded, label: 'Email', value: masjidInfo.email, palette: palette),
         ],
       ),
     );

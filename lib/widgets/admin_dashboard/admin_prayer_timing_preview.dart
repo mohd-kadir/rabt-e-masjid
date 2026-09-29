@@ -45,9 +45,7 @@ class AdminPrayerTimingPreview extends StatelessWidget {
               child: SizedBox(
                 width: 22,
                 height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.2,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2.2),
               ),
             ),
           );
@@ -129,19 +127,13 @@ class AdminPrayerTimingPreview extends StatelessWidget {
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: onEdit,
-                      child: const Text('Add'),
-                    ),
+                    TextButton(onPressed: onEdit, child: const Text('Add')),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Prayer timings have not been added yet.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: palette.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 12, color: palette.textSecondary),
                 ),
               ],
             ),
@@ -201,7 +193,7 @@ class AdminPrayerTimingPreview extends StatelessWidget {
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
           decoration: BoxDecoration(
             color: palette.cardSurface,
             borderRadius: BorderRadius.circular(20),
@@ -222,44 +214,21 @@ class AdminPrayerTimingPreview extends StatelessWidget {
               // ==================================================
               // HEADER
               // ==================================================
-
               Row(
                 children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.access_time_rounded,
-                      color: AppColors.primaryGreen,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Prayer Timings',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: palette.textPrimary,
-                          ),
-                        ),
-
-                        const SizedBox(height: 2),
-
-                        Text(
-                          'Today',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: palette.textSecondary,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            'Today',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: palette.textPrimary,
+                            ),
                           ),
                         ),
                       ],
@@ -271,7 +240,7 @@ class AdminPrayerTimingPreview extends StatelessWidget {
                     child: const Text(
                       'Edit',
                       style: TextStyle(
-                        fontSize: 12.5,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -279,12 +248,9 @@ class AdminPrayerTimingPreview extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 16),
-
               // ==================================================
               // TABLE HEADER
               // ==================================================
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -343,19 +309,14 @@ class AdminPrayerTimingPreview extends StatelessWidget {
               // ==================================================
               // PRAYER ROWS
               // ==================================================
-
               for (final prayer in prayers)
-                _PrayerRow(
-                  prayer: prayer,
-                  palette: palette,
-                ),
+                _PrayerRow(prayer: prayer, palette: palette),
 
               const SizedBox(height: 8),
 
               // ==================================================
               // JUMUAH
               // ==================================================
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -456,23 +417,15 @@ class _PrayerRow extends StatelessWidget {
   final _PrayerPreviewData prayer;
   final dynamic palette;
 
-  const _PrayerRow({
-    required this.prayer,
-    required this.palette,
-  });
+  const _PrayerRow({required this.prayer, required this.palette});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: palette.divider.withOpacity(0.5),
-          ),
+          bottom: BorderSide(color: palette.divider.withOpacity(0.5)),
         ),
       ),
       child: Row(
@@ -484,11 +437,7 @@ class _PrayerRow extends StatelessWidget {
               color: AppColors.primaryGreen.withOpacity(0.07),
               borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(
-              prayer.icon,
-              size: 17,
-              color: AppColors.primaryGreen,
-            ),
+            child: Icon(prayer.icon, size: 17, color: AppColors.primaryGreen),
           ),
 
           const SizedBox(width: 10),

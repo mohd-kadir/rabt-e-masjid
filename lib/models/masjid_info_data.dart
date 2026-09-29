@@ -5,35 +5,121 @@ class MasjidFacility {
   final String name;
   final IconData icon;
 
-  const MasjidFacility({required this.name, required this.icon});
+  const MasjidFacility({
+    required this.name,
+    required this.icon,
+  });
 }
 
-/// Mock Masjid Information data.
+/// Masjid information loaded from Firestore.
 class MasjidInfo {
-  MasjidInfo._();
+  final String name;
+  final String locationLabel;
+  final String address;
+  final String phone;
+  final String email;
 
-  static const String name = 'Masjid Al-Noor';
-  static const String locationLabel = 'Sector G-9, Islamabad';
-  static const String address = 'Street 12, Sector G-9/1, Islamabad, Pakistan';
-  static const String phone = '+92 51 234 5678';
-  static const String email = 'info@masjidnoor.org';
+  // Masjid photo uploaded to Cloudinary.
+  final String photoUrl;
 
-  static const String imamName = 'Sheikh Abdullah Rahman';
-  static const String imamPhone = '+92 300 1234567';
-  static const String imamBio =
-      'Imam Abdullah has led the congregation at Masjid Al-Noor for over 12 years. He holds an ijazah in '
-      'Quranic recitation and regularly teaches evening classes on Fiqh and Seerah.';
+  final String imamName;
+  final String imamPhone;
+  final String imamBio;
 
-  static const String aboutText =
-      'Masjid Al-Noor has served the local Muslim community since 1998, offering daily prayers, Friday '
-      'khutbahs, and educational programs for all ages. Our doors are open to worshippers and visitors '
-      'alike, and we welcome everyone seeking a place of peace and remembrance.';
+  final String aboutText;
 
-  static const List<MasjidFacility> facilities = [
-    MasjidFacility(name: 'Wudu Area', icon: Icons.water_drop_outlined),
-    MasjidFacility(name: 'Parking', icon: Icons.local_parking_outlined),
-    MasjidFacility(name: "Women's Prayer Area", icon: Icons.groups_outlined),
-    MasjidFacility(name: 'Wheelchair Access', icon: Icons.accessible_outlined),
-    MasjidFacility(name: 'Islamic Library', icon: Icons.local_library_outlined),
-  ];
+  final List<MasjidFacility> facilities;
+
+  const MasjidInfo({
+    required this.name,
+    required this.locationLabel,
+    required this.address,
+    required this.phone,
+    required this.email,
+    required this.photoUrl,
+    required this.imamName,
+    required this.imamPhone,
+    required this.imamBio,
+    required this.aboutText,
+    required this.facilities,
+  });
+
+  factory MasjidInfo.fromFirestore(
+      Map<String, dynamic> data,
+      ) {
+    final facilitiesData = data['facilities'];
+
+    final facilities = <MasjidFacility>[];
+
+    if (facilitiesData is Map) {
+      final facilityIcons = <String, IconData>{
+        'Wudu Area': Icons.water_drop_outlined,
+        'Parking': Icons.local_parking_outlined,
+        "Women's Prayer Area": Icons.groups_outlined,
+        'Wheelchair Access': Icons.accessible_outlined,
+        'Islamic Library': Icons.local_library_outlined,
+      };
+
+      facilitiesData.forEach((key, value) {
+        if (value == true) {
+          final name = key.toString();
+
+          facilities.add(
+            MasjidFacility(
+              name: name,
+              icon: facilityIcons[name] ??
+                  Icons.check_circle_outline,
+            ),
+          );
+        }
+      });
+    }
+
+    return MasjidInfo(
+      name: data['name']?.toString() ?? 'Masjid',
+
+      locationLabel: _createLocationLabel(
+        data['address']?.toString() ?? '',
+      ),
+
+      address: data['address']?.toString() ?? '',
+
+      phone: data['phone']?.toString() ?? '',
+
+      email: data['email']?.toString() ?? '',
+
+      // Cloudinary photo URL
+      photoUrl: data['photoUrl']?.toString() ?? '',
+
+      imamName: data['imamName']?.toString() ?? '',
+
+      imamPhone:
+      data['imamContact']?.toString() ?? '',
+
+      imamBio:
+      data['imamBio']?.toString() ?? '',
+
+      aboutText:
+      data['about']?.toString() ?? '',
+
+      facilities: facilities,
+    );
+  }
+
+  static String _createLocationLabel(
+      String address,
+      ) {
+    if (address.trim().isEmpty) {
+      return 'Location not available';
+    }
+
+    final parts = address.split(',');
+
+    if (parts.length >= 2) {
+      return '${parts[parts.length - 2].trim()}, '
+          '${parts.last.trim()}';
+    }
+
+    return address;
+  }
 }
